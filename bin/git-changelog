@@ -1,6 +1,99 @@
 #!/usr/bin/env ruby -wKU
-require File.join(File.dirname(__FILE__), '../lib/qa_release_tasks')
 require 'optparse'
+
+def warn(message)
+  STDERR.puts "*" * 50
+  STDERR.puts "Warning: #{message}"
+  STDERR.puts "*" * 50
+end
+
+def error(message)
+  STDERR.puts "*" * 50
+  STDERR.puts "Error: #{message}"
+  STDERR.puts "*" * 50
+  exit 1
+end
+
+def ask(question, default=nil, valid_response=nil, invalid_message=nil)
+  loop do
+    print "#{question}"
+    print " [#{default}]" if default
+    print ": "
+    answer = STDIN.gets.chomp
+    answer = default if default && answer.empty?
+    valid = false
+    valid = true if valid_response.nil?
+    valid = true if valid_response.respond_to?(:include?) && valid_response.include?(answer)
+    valid = true if valid_response.respond_to?(:match) && valid_response.match(answer)
+    if valid
+      return answer
+    else
+      if valid_response.is_a?(Array)
+        puts invalid_message || begin
+          print "Invalid answer, please try again."
+          print " Valid answers include:\n"
+          puts valid_response
+        end
+      elsif valid_response.is_a?(Regexp)
+        puts invalid_message || "Invalid format for answer, please try again."
+      else
+        puts invalid_message || "Invalid answer, please try again."
+      end
+    end
+  end  
+end
+
+def assert_is_git_repo
+  error "Not a git repository" unless is_git_repo?
+end
+
+def is_git_repo?
+  File.directory?('.git')
+end
+
+ # e.g. v1.4.3
+def valid_version_regexp
+  /^v\d+\.\d+\.\d+/
+end
+
+# Find all version tags
+def get_tags
+  version_regexp = valid_version_regexp
+  %x{git tag}.split.grep(version_regexp).sort_by{|v| v.split('.').map{|nbr| nbr[/\d+/].to_i}}.map{|tag| tag.strip}
+end
+
+def annotate!(options)
+  limit = options[:limit].nil? ? 20 : options[:limit]
+
+  assert_is_git_repo
+  tags = get_tags.reverse
+  error "No version tags available." if tags.empty?
+  
+  if options[:all]
+    start_index = 0
+    end_index = tags.length - 1
+  else
+    start_tag = options[:from] || ask("Start at which tag?", tags[0], tags)
+    start_index = tags.index(start_tag)   
+    end_tag = options[:to] || ask("End at which tag?", tags[start_index + 1] || tags[start_index], tags)
+    end_index = tags.index(end_tag) + 1 # include end tag
+  end
+  
+  start_index.upto(end_index-1) do |i|
+    start = tags[i]
+    finish = tags[i+1]
+    range = ''
+    range << "refs/tags/#{finish}.." if finish # log until end tag if there is an end tag
+    range << "refs/tags/#{start}"
+    log = `git log --no-merges --pretty=format:"%h  %s" #{range}`.strip.split("\n")
+    next if log.empty?
+    puts "#{start}"
+    puts "=" * start.length
+    puts limit ? log[0,limit] : log
+    puts "         ... and #{log.size - limit} more." if limit && log.size > limit
+    puts
+  end
+end
 
 options = {}
 OptionParser.new do |opts|
@@ -41,4 +134,4 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-Git::ReleaseNotes.new(options).annotate!
+annotate!(options)

@@ -3,7 +3,7 @@ require 'rake/gempackagetask'
 require 'rubygems/specification'
 require 'date'
 
-GEM = "git-checkout"
+GEM = "git-changelog"
 GEM_VERSION = "0.9.0"
 AUTHORS = "Jason Noble", "Rein Henrichs"
 SUMMARY = "A gem that provides the git-checkout git command"

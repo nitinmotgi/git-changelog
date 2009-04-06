@@ -1,12 +1,12 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{git-checkout}
+  s.name = %q{git-changelog}
   s.version = "0.9.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jason Noble", "Rein Henrichs"]
-  s.autorequire = %q{git-checkout}
+  s.autorequire = %q{git-changelog}
   s.date = %q{2009-04-06}
   s.default_executable = %q{git-changelog}
   s.description = %q{A gem that provides the git-checkout git command}

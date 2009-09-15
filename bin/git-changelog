@@ -53,7 +53,7 @@ end
 
  # e.g. v1.4.3
 def valid_version_regexp
-  /^v\d+\.\d+\.\d+/
+  /^v?\d+\.\d+\.\d+/
 end
 
 # Find all version tags

@@ -17,7 +17,7 @@ spec = Gem::Specification.new do |s|
   s.description = s.summary
   s.authors = AUTHORS
   s.executables = ['git-changelog']
-  
+  s.add_dependency('versionomy')
   s.autorequire = GEM
   s.files = %w(LICENSE README Rakefile bin/git-changelog)
 end

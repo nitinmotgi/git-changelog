@@ -4,7 +4,7 @@ require 'rubygems/specification'
 require 'date'
 
 GEM = "git-changelog"
-GEM_VERSION = "0.9.1"
+GEM_VERSION = "0.9.2"
 AUTHORS = "Jason Noble", "Rein Henrichs"
 SUMMARY = "A gem that provides the git-checkout git command"
 

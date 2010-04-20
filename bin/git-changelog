@@ -32,8 +32,7 @@ def get_tags
 end
 
 def annotate!(options)
-  limit = options[:limit] || 20
-
+  limit = options[:limit]
   assert_is_git_repo
   tags = get_tags
 
@@ -49,9 +48,8 @@ def annotate!(options)
     range << "refs/tags/#{start}"
     log = git(%{log --no-merges --pretty=format:"%h  %s" #{range}}).strip.split("\n")
     next if log.empty?
-    puts "#{start}"
-    puts "=" * start.length
-    puts limit ? log[0,limit] : log
+
+    puts "#{start}", "=" * start.length, limit ? log[0,limit] : log
     puts "         ... and #{log.size - limit} more." if limit && log.size > limit
     puts
   end
